@@ -1,0 +1,7 @@
+# Project folders
+.vscode/
+.idea/
+
+# Temporary disabled locking
+package-lock.json
+

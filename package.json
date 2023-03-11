@@ -1,0 +1,11 @@
+{
+    "name": "math",
+    "private": true,
+    "type": "module",
+    "dependencies": {
+    },
+    "devDependencies": {
+        "eslint": "^8.35.0",
+        "@babel/eslint-parser": "^7.19.1"
+    }
+}
