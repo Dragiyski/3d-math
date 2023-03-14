@@ -5,3 +5,5 @@
 # Temporary disabled locking
 package-lock.json
 
+# The node moules
+node_modules/
