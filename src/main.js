@@ -32,3 +32,6 @@ export function cross(a, b) {
 export function neg(x) {
     return implementation[x[polymorphism]].neg(x);
 }
+
+export * as limits from './lib/limits.js';
+export * from './lib/power.js';

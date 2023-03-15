@@ -8,9 +8,9 @@ import {
 } from './implementation.js';
 import polymorphism, { internal } from './polymorphism.js';
 
-const vector_size = 2;
+const vector_size = 3;
 
-export default class Vector2D {
+export default class Vector3D {
     constructor(x = 0, y = 0) {
         this[internal] = Object.seal(construct_array([0, 0], [...arguments]));
     }
@@ -48,7 +48,7 @@ export default class Vector2D {
     }
 }
 
-const VectorClass = Vector2D;
+const VectorClass = Vector3D;
 
 VectorClass.prototype[polymorphism] = Symbol(`Vector${vector_size}D.polymorphism`);
 
