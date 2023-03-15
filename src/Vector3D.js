@@ -11,8 +11,8 @@ import polymorphism, { internal } from './polymorphism.js';
 const vector_size = 3;
 
 export default class Vector3D {
-    constructor(x = 0, y = 0) {
-        this[internal] = Object.seal(construct_array([0, 0], [...arguments]));
+    constructor(x = 0, y = 0, z = 0) {
+        this[internal] = Object.seal(construct_array([0, 0, 0], [...arguments]));
     }
 
     static from(array, offset = 0) {

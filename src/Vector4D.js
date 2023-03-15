@@ -11,8 +11,8 @@ import polymorphism, { internal } from './polymorphism.js';
 const vector_size = 4;
 
 export default class Vector4D {
-    constructor(x = 0, y = 0) {
-        this[internal] = Object.seal(construct_array([0, 0], [...arguments]));
+    constructor(x = 0, y = 0, z = 0, w = 1) {
+        this[internal] = Object.seal(construct_array([0, 0, 0, 1], [...arguments]));
     }
 
     static from(array, offset = 0) {

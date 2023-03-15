@@ -212,6 +212,63 @@ function make_vector_dot(size) {
     }
 }
 
+function define_swizzle(vector_size, name, indices) {
+    const target_size = indices.length;
+    Object.defineProperty(vector_class_by_size[vector_size].prototype, name, {
+        get: (indices.length > 1 ? createVectorGetter : createNumberGetter)(),
+        set: (indices.length > 1 ? createVectorSetter : createNumberSetter)()
+    });
+
+    function createVectorGetter() {
+        const code = new Code();
+        code.append('return function() {');
+        code.append('return new Vector[size](' + indices.map(index => `this[internal][${index}]`).join(', ') + ');');
+        code.append('};');
+        return (new Function('Vector', 'size', 'internal', code.toString()))(vector_class_by_size, target_size, internal);
+    }
+
+    function createNumberGetter() {
+        const code = new Code();
+        code.append('return function() {');
+        code.append(`return this[internal][${indices[0]}]`);
+        code.append('};');
+        return (new Function('internal', code.toString()))(internal);
+    }
+
+    function createVectorSetter() {
+        const code = new Code();
+        code.append('return function(value) {');
+        for (let i = 0; i < indices.length; ++i) {
+            const index = indices[i];
+            code.append(`this[internal][${index}] = validateNumber(value?.[${i}], ${i});`);
+        }
+        code.append('};');
+        return (new Function('internal', 'validateNumber', code.toString()))(internal, validateIndex);
+    }
+
+    function createNumberSetter() {
+        const code = new Code();
+        code.append('return function(value) {');
+        code.append(`this[internal][${indices[0]}] = validateNumber(value);`);
+        code.append('};');
+        return (new Function('internal', 'validateNumber', code.toString()))(internal, validateNumber);
+    }
+
+    function validateIndex(value, index) {
+        if (typeof value !== 'number') {
+            throw new TypeError(`The value at item[${index}] is not a number`);
+        }
+        return value;
+    }
+
+    function validateNumber(value) {
+        if (typeof value !== 'number') {
+            throw new TypeError(`The value is not a number`);
+        }
+        return value;
+    }
+}
+
 /**
  * @param {number} vector_size
  * @param {Function} VectorClass
@@ -235,14 +292,13 @@ export function generate_vector_implementation(vector_size, VectorClass) {
 
     for (const naming_scheme of [vector_dim_names, vector_color_names]) {
         const names = naming_scheme.slice(0, vector_size);
-        const incides = Object.create(null);
+        const indexNames = Object.create(null);
         for (let i = 0; i < names.length; ++i) {
-            incides[names[i]] = i;
+            indexNames[names[i]] = i;
         }
         for (let name_size = 1; name_size <= 4; ++name_size) {
             for (const name of permutateNameFrom(names, name_size)) {
-                // console.log(name);
-                // TODO: For all vectors 2-4, generate vectors.
+                define_swizzle(vector_size, name, name.split('').map(k => indexNames[k]));
             }
         }
     }

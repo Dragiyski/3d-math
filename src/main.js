@@ -35,3 +35,6 @@ export function neg(x) {
 
 export * as limits from './lib/limits.js';
 export * from './lib/power.js';
+export { default as Vector2D } from './Vector2D.js';
+export { default as Vector3D } from './Vector3D.js';
+export { default as Vector4D } from './Vector4D.js';
