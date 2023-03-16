@@ -19,7 +19,12 @@ export default class Code {
     }
 
     #append(line) {
-        this.#lines.push(`${Code.indent(this.#indent)}${line.trimStart()}`);
+        line = line.trimStart();
+        if (line.length > 0) {
+            this.#lines.push(`${Code.indent(this.#indent)}${line.trimStart()}`);
+        } else {
+            this.#lines.push('');
+        }
     }
 
     get lines() {

@@ -46,6 +46,11 @@ export default class Vector3D {
         implementation[this[polymorphism]].setDefault(this);
         return this;
     }
+
+    set(x, y, z) {
+        this.xyz = [x, y, z];
+        return this;
+    }
 }
 
 const VectorClass = Vector3D;
@@ -59,3 +64,11 @@ Object.defineProperties(VectorClass.prototype, {
         value: vector_size
     }
 });
+
+implementation[Vector3D.prototype[polymorphism]][Vector3D.prototype[polymorphism]].cross = function cross(x, y) {
+    return new Vector3D(
+        x[internal][1] * y[internal][2] - x[internal][2] * y[internal][1],
+        x[internal][2] * y[internal][0] - x[internal][0] * y[internal][2],
+        x[internal][0] * y[internal][1] - x[internal][1] * y[internal][0]
+    );
+};

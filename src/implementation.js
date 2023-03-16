@@ -33,8 +33,7 @@ export function construct_array(default_value, args) {
     return values;
 
     function scanArray(array, ...path) {
-        for (let i = 0; i < array.length; ++i) {
-            const value = array[i];
+        for (const value of array) {
             if (value === Object(value) && typeof value[Symbol.iterator] === 'function') {
                 if (path.indexOf(value) >= 0) {
                     throw new TypeError('Recursive argument in constructing array');

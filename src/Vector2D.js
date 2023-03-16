@@ -46,6 +46,11 @@ export default class Vector2D {
         implementation[this[polymorphism]].setDefault(this);
         return this;
     }
+
+    set(x, y) {
+        this.xy = [x, y];
+        return this;
+    }
 }
 
 const VectorClass = Vector2D;

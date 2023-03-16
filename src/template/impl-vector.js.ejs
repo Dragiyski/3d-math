@@ -1,0 +1,128 @@
+function recursive_items_from_args(size, args) {
+    const items = [];
+    walk_array(args);
+    return items;
+
+    function walk_array(array, ...path) {
+        if (path.indexOf(array) >= 0) {
+            return false;
+        }
+        for (const item of array) {
+            if (typeof item === 'number') {
+                if (items.push(item) >= size) {
+                    return true;
+                }
+            } else if (item === Object(item) && typeof item[Symbol.iterator] === 'function') {
+                if (walk_array(item, array, ...path)) {
+                    return true;
+                }
+            } else {
+                throw new TypeError('Invalid arguments');
+            }
+        }
+        return false;
+    }
+}
+
+function vector_create_from_array(Class, size, array, offset) {
+    if (!Number.isSafeInteger(offset)) {
+        throw new TypeError(`Invalid argument [offset]: not an index`);
+    }
+    if (offset < 0 || offset + size > array.length) {
+        throw new RangeError(`Index out of bounds: [${offset}; ${offset + size}) not in range [0, ${array.length})`);
+    }
+    const self = Object.create(Class.prototype);
+    self[internal] = new Array(size);
+    for (let i = 0; i < size; ++i) {
+        self[internal][i] = array[offset + i];
+        if (typeof self[internal][i] !== 'number') {
+            throw new TypeError(`Invalid array item[${i}]: not a numeric value`);
+        }
+    }
+    Object.seal(self[internal]);
+    return self;
+}
+
+function vector_create_using_array(Class, size, array, offset = 0) {
+    if (!Number.isSafeInteger(offset)) {
+        throw new TypeError(`Invalid argument [offset]: not an index`);
+    }
+    if (offset < 0 || offset + size > array.length) {
+        throw new RangeError(`Index out of bounds: [${offset}; ${offset + size}) not in range [0, ${array.length})`);
+    }
+    const self = Object.create(Class.prototype);
+    self[internal] = Object.create(Array.prototype);
+    Object.defineProperty(self[internal], 'length', {
+        value: size
+    });
+    for (let i = 0; i < size; ++i) {
+        Object.defineProperty(self[internal], i, {
+            enumerable: true,
+            get: () => +array[offset + i],
+            set: value => {
+                if (typeof value !== 'number') {
+                    throw new TypeError(`Cannot set item[${i}] to a non-numeric value`);
+                }
+                array[offset + i] = value;
+            }
+        });
+    }
+    Object.seal(self[internal]);
+    return self;
+}
+
+function vector_create_piecewise(Class, size, items) {
+    if (items.length !== size) {
+        throw new TypeError('Invalid number of arguments');
+    }
+
+    const array = Object.create(Array.prototype);
+    Object.defineProperty(array, 'length', {
+        value: size
+    });
+    for (let i = 0; i < size; ++i) {
+        const item = items[i];
+        if (item === Object(item)) {
+            if (Array.isArray(item)) {
+                if (item.length === 0 || item.length > 2) {
+                    throw new TypeError('ArrayReference by an array must contain 1 or 2 elements: [array, offset = 0]');
+                }
+                const [array, offset = 0] = item;
+                if (!apply_reference(i, array, offset)) {
+                    throw new TypeError('Invalid reference: expected [array, offset]');
+                }
+            } else {
+                const { array, offset = 0 } = item;
+                if (!apply_reference(i, array, offset)) {
+                    throw new TypeError('Invalid reference: expected { array, offset }');
+                }
+            }
+        } else {
+            array[i] = +item;
+        }
+    }
+
+    const self = Object.create(Class.prototype);
+    self[internal] = Object.seal(array);
+
+    function apply_reference(index, array, offset) {
+        if (array === Object(array) && typeof array[Symbol.iterator] === 'function' && offset in array) {
+            Object.defineProperty(array, index, {
+                enumerable: true,
+                get: () => +array[offset],
+                set: value => {
+                    array[offset] = +value;
+                }
+            });
+            return true;
+        }
+        return false;
+    }
+}
+
+<% for (let a = 2; a <= 4; ++a) { -%>
+implementation[Vector<%= a -%>D.prototype[polymorphism]] = Object.create(null);
+<% for (let b = 2; b <= 4; ++b) { -%>
+implementation[Vector<%= a -%>D.prototype[polymorphism]][Vector<%= b -%>D.prototype[polymorphism]] = Object.create(null);
+<% } %>
+<% } %>

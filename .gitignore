@@ -7,3 +7,6 @@ package-lock.json
 
 # The node moules
 node_modules/
+
+# The generated output dir
+dist/

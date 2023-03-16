@@ -1,0 +1,29 @@
+/* eslint-disable no-extend-native */
+export * as limits from './limits.js';
+export * from './power.js';
+
+const polymorphism = Symbol('polymorphism');
+Number.prototype[polymorphism] = Symbol('Number.polymorphism');
+const implementation = Object.create(null);
+const internal = Symbol('internal');
+export const Vector = Object.create(null);
+export const Matrix = Object.create(null);
+
+<% for (let size = 2; size <= 4; ++size) { -%>
+Matrix[<%= size %>] = Object.create(null);
+<% } %>
+
+<% for (let size = 2; size <= 4; ++size) { -%><%-
+    await include('vector.js.ejs', { size })
+%>
+<% } %>
+
+<% for (let rows = 2; rows <= 4; ++rows) {
+    for (let columns = 2; columns <= 4; ++columns) { %><%-
+        await include('matrix.js.ejs', { rows, columns })
+%>
+<% }} %>
+<%- await include('impl-vector.js.ejs') -%>
+<%- await include('impl-matrix.js.ejs') -%>
+
+<%- await include('implementation.js.ejs') -%>

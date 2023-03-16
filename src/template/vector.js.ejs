@@ -1,0 +1,49 @@
+export class Vector<%= locals.size %>D {
+    constructor(...args) {
+        let items = recursive_items_from_args(<%= locals.size %>, args);
+        if (items.length === 0) {
+            items = <%= [0, 0, 0, 1].slice(0, locals.size) %>;
+        } else if (items.length === 1) {
+            items = (new Array(<%= locals.size %>).fill(items[0]));
+        } else if (items.length !== <%= locals.size %>) {
+            throw new TypeError(`Invalid number of arguments: expected 0, 1, or <%= locals.size %>, got ${items.length}`);
+        }
+        this[internal] = Object.seal(items.map(item => +item));
+    }
+
+    static from(array, offset = 0) {
+        return vector_create_from_array(this, <%= locals.size %>, array, offset);
+    }
+
+    static using(array, offset = 0) {
+        return vector_create_using_array(this, <%= locals.size %>, array, offset);
+    }
+
+    static piecewise(...items) {
+        return vector_create_piecewise(this, <%= locals.size %>, items);
+    }
+
+    * [Symbol.iterator]() {
+        yield * this[internal];
+    }
+
+    set(...args) {
+        implementation[this[polymorphism]].set_values(args);
+        return this;
+    }
+
+    into(target) {
+        implementation[this[polymorphism]][target[polymorphism]].copy_into(this, target);
+        return target;
+    }
+}
+
+Vector<%= locals.size %>D.prototype[polymorphism] = Symbol(`Vector<%= locals.size %>D.polymorphism`);
+
+Object.defineProperties(Vector<%= locals.size %>D.prototype, {
+    size: {
+        value: <%= locals.size %>
+    }
+});
+
+Vector[<%= locals.size %>] = Vector<%= locals.size %>D;

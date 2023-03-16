@@ -46,6 +46,11 @@ export default class Vector4D {
         implementation[this[polymorphism]].setDefault(this);
         return this;
     }
+
+    set(x, y, z, w) {
+        this.xyzw = [x, y, z, w];
+        return this;
+    }
 }
 
 const VectorClass = Vector4D;

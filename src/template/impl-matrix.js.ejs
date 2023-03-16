@@ -1,0 +1,130 @@
+function matrix_init_from_values_row_major(self, rows, cols, items) {
+    self[internal] = {
+        rows: [],
+        columns: []
+    };
+    for (let i = 0; i < rows; ++i) {
+        self[internal].rows.push(new Vector[cols](items.slice(i * cols, i * cols + cols)));
+    }
+    for (let i = 0; i < cols; ++i) {
+        const refs = [];
+        for (let j = 0; j < rows; ++j) {
+            refs.push([self[internal].rows[j], i]);
+        }
+        self[internal].columns.push(Vector[cols].piecewise(...refs));
+    }
+    Object.seal(self[internal].rows);
+    Object.seal(self[internal].columns);
+    matrix_init_properties_from_internal(self, rows, cols);
+}
+
+function matrix_init_properties_from_internal(self, rows, cols) {
+    Object.defineProperties(self, {
+        columns: {
+            enumerable: true,
+            value: Object.create(Array.prototype, {
+                length: {
+                    value: cols
+                }
+            })
+        },
+        rows: {
+            enumerable: true,
+            value: Object.create(Array.prototype, {
+                length: {
+                    value: rows
+                }
+            })
+        }
+    });
+    for (let i = 0; i < cols; ++i) {
+        Object.defineProperty(self.columns, i, {
+            enumerable: true,
+            get: () => self[internal].columns[i],
+            set: value => {
+                self[internal].columns[i].set(...value);
+            }
+        });
+    }
+    for (let i = 0; i < rows; ++i) {
+        Object.defineProperty(self.rows, i, {
+            enumerable: true,
+            get: () => self[internal].rows[i],
+            set: value => {
+                self[internal].rows[i].set(...value);
+            }
+        });
+    }
+    Object.seal(self.columns);
+    Object.seal(self.rows);
+}
+
+function matrix_create_from_row_vectors(Class, rows, cols, vectors, copy) {
+    if (vectors.length !== rows) {
+        throw new TypeError(`Invalid number of arguments: expected ${rows} vectors, got ${vectors.length}`);
+    }
+    for (let i = 0; i < vectors.length; ++i) {
+        const vector = vectors[i];
+        if (!(vector instanceof Vector[cols])) {
+            throw new TypeError(`The vector at index [${i}] is not an instance of ${Vector[cols].name}`);
+        }
+    }
+    const self = Object.create(Class.prototype);
+    self[internal] = {
+        rows: copy ? vectors.map(vector => new Vector[cols](...vector)) : vectors,
+        columns: new Array(cols)
+    };
+
+    for (let i = 0; i < cols; ++i) {
+        const refs = new Array(rows);
+        for (let j = 0; j < rows; ++j) {
+            refs[j] = [self[internal].rows[j], i];
+        }
+        self[internal].columns[i] = Vector[cols].piecewise(...refs);
+    }
+
+    Object.seal(self[internal].rows);
+    Object.seal(self[internal].columns);
+
+    matrix_init_properties_from_internal(self, rows, cols);
+    return self;
+}
+
+function matrix_create_from_column_vectors(Class, rows, cols, vectors, copy) {
+    if (vectors.length !== cols) {
+        throw new TypeError(`Invalid number of arguments: expected ${cols} vectors, got ${vectors.length}`);
+    }
+    for (let i = 0; i < vectors.length; ++i) {
+        const vector = vectors[i];
+        if (!(vector instanceof Vector[rows])) {
+            throw new TypeError(`The vector at index [${i}] is not an instance of ${Vector[rows].name}`);
+        }
+    }
+    const self = Object.create(Class.prototype);
+    self[internal] = {
+        columns: copy ? vectors.map(vector => new Vector[rows](...vector)) : vectors,
+        rows: new Array(rows)
+    };
+
+    for (let i = 0; i < rows; ++i) {
+        const refs = new Array(cols);
+        for (let j = 0; j < cols; ++j) {
+            refs[j] = [self[internal].columns[j], i];
+        }
+        self[internal].columns[i] = Vector[rows].piecewise(...refs);
+    }
+
+    Object.seal(self[internal].rows);
+    Object.seal(self[internal].columns);
+
+    matrix_init_properties_from_internal(self, cols, rows);
+    return self;
+}
+
+<% for (let x_rows = 2; x_rows <= 4; ++x_rows) {
+    for (let x_cols = 2; x_cols <= 4; ++x_cols) { -%>
+implementation[Matrix<%= x_rows -%>x<%= x_cols -%>.prototype[polymorphism]] = Object.create(null);
+<% for (let y_rows = 2; y_rows <= 4; ++y_rows) {
+    for (let y_cols = 2; y_cols <= 4; ++y_cols) { -%>
+implementation[Matrix<%= x_rows -%>x<%= x_cols -%>.prototype[polymorphism]][Matrix<%= y_rows -%>x<%= y_cols -%>.prototype[polymorphism]] = Object.create(null);
+<% }}}} %>

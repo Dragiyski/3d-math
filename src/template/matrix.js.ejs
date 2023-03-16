@@ -1,0 +1,31 @@
+export class Matrix<%= locals.rows %>x<%= locals.columns %> {
+    constructor(...args) {
+        let items = recursive_items_from_args(<%= locals.rows * locals.columns %>, args);
+        if (items.length === 0) {
+            items = <%= locals.matrixDefaultValues(locals.rows, locals.columns) %>;
+        } else if (items.length !== <%= locals.rows * locals.columns %>) {
+            throw new TypeError(`Invalid number of arguments: expected 0, or <%= locals.rows * locals.columns %>, got ${items.length}`);
+        }
+        matrix_init_from_values_row_major(this, <%= locals.rows %>, <%= locals.columns %>, items);
+    }
+
+    static from_rows(...vectors) {
+        return matrix_create_from_row_vectors(this, <%= locals.rows %>, <%= locals.columns %>, vectors, true);
+    }
+
+    static using_rows(...vectors) {
+        return matrix_create_from_row_vectors(this, <%= locals.rows %>, <%= locals.columns %>, vectors, false);
+    }
+
+    static from_columns(...vectors) {
+        return matrix_create_from_column_vectors(this, <%= locals.rows %>, <%= locals.columns %>, vectors, true);
+    }
+
+    static using_columns(...vectors) {
+        return matrix_create_from_column_vectors(this, <%= locals.rows %>, <%= locals.columns %>, vectors, false);
+    }
+}
+
+Matrix<%= locals.rows %>x<%= locals.columns %>.prototype[polymorphism] = Symbol('Matrix<%= locals.rows %>x<%= locals.columns %>.polymorphism');
+
+Matrix[<%= locals.rows %>][<%= locals.columns %>] = Matrix<%= locals.rows %>x<%= locals.columns %>;
