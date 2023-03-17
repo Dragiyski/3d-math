@@ -32,6 +32,16 @@
             return new Vector<%= size -%>D(<%- new Array(size).fill(0).map((_, i) => `Math.${name}(x[internal][${i}])`).join(', ') -%>);
         };
     <%_ } %>
+    implementation[Vector<%= size -%>D.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].atan2 = function atan2(y, x) {
+        return new Vector<%= size -%>D(
+            <% for (let i = 0; i < size; ++i) { _%>
+                Math.atan2(y[internal][<%= i -%>], x[internal][<%= i -%>])<%_ if (i < size - 1) { _%>,<%_ } %>
+            <%_ } -%>
+        );
+    };
+    implementation[Vector<%= size -%>D.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].dot = function dot(x, y) {
+        return <%- new Array(size).fill(0).map((_, i) => `x[internal][${i}] * y[internal][${i}]`).join(' + ') -%>;
+    };
 <% } -%>
 
 <% for (const [name, op] of Object.entries(math_binary_op)) { _%>
@@ -55,3 +65,6 @@
         return implementation[x[polymorphism]].<%- name -%>(x);
     }
 <%_ } %>
+export function neg(x) {
+    return implementation[x[polymorphism]].neg(x);
+}

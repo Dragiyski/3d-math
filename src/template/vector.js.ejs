@@ -2,6 +2,16 @@
 <% const vector_color_names = ['r', 'g', 'b', 'a'].slice(0, locals.size); %>
 export class Vector<%= locals.size %>D {
     constructor(...args) {
+        <% if (locals.size < 4) { _%>
+        if (args.length === 1 && args[0] instanceof Vector<%= locals.size + 1 %>D) {
+            this[internal] = Object.seal([
+                <% for (let i = 0; i < locals.size; ++i) { _%>
+                args[0][internal][<%= i -%>] / args[0][internal][<%= locals.size -%>]<%_ if (i < locals.size - 1) { _%>,<%_ } %>
+                <%_ } _%>
+            ]);
+            return;
+        }
+        <%_ } _%>
         let items = recursive_items_from_args(<%= locals.size %>, args);
         if (items.length === 0) {
             items = <%= [0, 0, 0, 1].slice(0, locals.size) %>;
@@ -30,13 +40,18 @@ export class Vector<%= locals.size %>D {
     }
 
     set(...args) {
-        implementation[this[polymorphism]].set_values(args);
+        const items = recursive_items_from_args(<%= locals.size -%>, args);
+        <% for (let i = 0; i < locals.size; ++i) { _%>
+        this[internal][<%= i -%>] = +items[<%= i -%>];
+        <%_ } _%>
         return this;
     }
 
     into(target) {
-        implementation[this[polymorphism]][target[polymorphism]].copy_into(this, target);
-        return target;
+        if (!(target instanceof Vector<%= locals.size %>D)) {
+            throw new TypeError(`Invalid arguments`);
+        }
+        return target.set(this);
     }
 
     <% for (const naming_scheme of [vector_dim_names, vector_color_names]) {
