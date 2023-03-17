@@ -42,6 +42,12 @@
     implementation[Vector<%= size -%>D.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].dot = function dot(x, y) {
         return <%- new Array(size).fill(0).map((_, i) => `x[internal][${i}] * y[internal][${i}]`).join(' + ') -%>;
     };
+    implementation[Vector<%= size -%>D.prototype[polymorphism]].length = function length(x) {
+        return Math.hypot(...x);
+    };
+    implementation[Vector<%= size -%>D.prototype[polymorphism]].normalize = function normalize(x) {
+        return div(x, length(x));
+    };
 <% } -%>
 
 <% for (const [name, op] of Object.entries(math_binary_op)) { _%>
@@ -55,6 +61,37 @@
     };
 <%_ } %>
 
+implementation[Vector3D.prototype[polymorphism]][Vector3D.prototype[polymorphism]].cross = function cross(x, y) {
+    return new Vector3D(
+        x[internal][1] * y[internal][2] - x[internal][2] * y[internal][1],
+        x[internal][2] * y[internal][0] - x[internal][0] * y[internal][2],
+        x[internal][0] * y[internal][1] - x[internal][1] * y[internal][0]
+    );
+};
+
+<% for (let row_count = 2; row_count <= 4; ++row_count) {
+    for (let col_count = 2; col_count <= 4; ++col_count) { _%>
+        <%_ for (const name of Object.keys(math_binary_op)) { _%>
+implementation[Number.prototype[polymorphism]][Matrix<%= row_count -%>x<%= col_count -%>.prototype[polymorphism]].<%- name -%> = function <%- name -%>(n, x) {
+    return Matrix<%= row_count -%>x<%= col_count -%>.using_rows(...x.rows.map(v => <%- name -%>(n, v)));
+};
+implementation[Matrix<%= row_count -%>x<%= col_count -%>.prototype[polymorphism]][Number.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x, n) {
+    return Matrix<%= row_count -%>x<%= col_count -%>.using_rows(...x.rows.map(v => <%- name -%>(v, n)));
+};
+        <%_ } _%>
+        <%_ for (let internal_count = 2; internal_count <= 4; ++internal_count) { _%>
+implementation[Matrix<%= row_count -%>x<%= internal_count -%>.prototype[polymorphism]][Matrix<%= internal_count -%>x<%= col_count -%>.prototype[polymorphism]].mul = function mul(x, y) {
+    return new Matrix<%= row_count -%>x<%= col_count -%>(
+        <% for (let r = 0; r < row_count; ++r) {
+            for (let c = 0; c < col_count; ++c) { _%>
+        dot(x.rows[<%= r -%>], y.columns[<%= c -%>])<%_ if (c * row_count + r < (row_count * col_count) - 1) { _%>,<%_ } %>
+        <%_ }} _%>
+    );
+};
+        <%_ } _%>
+    <%_ }
+} _%>
+
 <% for (const name of Object.keys(math_binary_op)) { _%>
     export function <%- name -%>(x, y) {
         return implementation[x[polymorphism]][y[polymorphism]].<%- name -%>(x, y);
@@ -67,4 +104,20 @@
 <%_ } %>
 export function neg(x) {
     return implementation[x[polymorphism]].neg(x);
+}
+
+export function length(x) {
+    return implementation[x[polymorphism]].length(x);
+}
+
+export function normalize(x) {
+    return implementation[x[polymorphism]].normalize(x);
+}
+
+export function dot(x, y) {
+    return implementation[x[polymorphism]][y[polymorphism]].dot(x);
+}
+
+export function cross(x, y) {
+    return implementation[x[polymorphism]][y[polymorphism]].cross(x);
 }
