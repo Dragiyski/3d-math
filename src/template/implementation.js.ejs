@@ -1,24 +1,25 @@
-<%_ const fn_names_1_arg = ['abs', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atanh', 'cbrt', 'ceil', 'cos', 'cosh', 'exp', 'expm1', 'floor', 'log', 'log10', 'log1p', 'log2', 'round', 'sign', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'] _%> 
+<%_ const fn_math_arg_1 = ['abs', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atanh', 'cbrt', 'ceil', 'cos', 'cosh', 'exp', 'expm1', 'floor', 'log', 'log10', 'log1p', 'log2', 'round', 'sign', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'] _%> 
+<%_ const math_binary_op = { add: '+', sub: '-', mul: '*', div: '/', mod: '%' }; _%>
 <% for (let size = 2; size <= 4; ++size) { -%>
     implementation[Vector<%= size -%>D.prototype[polymorphism]].neg = function neg(x) {
         return new Vector<%= size -%>D(<%- new Array(size).fill(0).map((_, i) => `-x[internal][${i}]`).join(', ') -%>);
     };
-    <% for (const [name, op] of Object.entries({add: '+', sub: '-', mul: '*', div: '/', mod: '%'})) { _%>
-        implementation[Vector<%= size -%>D.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].<%- name %> = function <%- name %>(x, y) {
+    <% for (const [name, op] of Object.entries(math_binary_op)) { _%>
+        implementation[Vector<%= size -%>D.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x, y) {
             return new Vector<%= size -%>D(
                 <% for (let i = 0; i < size; ++i) { _%>
                 x[internal][<%= i -%>] <%- op -%> y[internal][<%= i -%>]<%_ if (i < size - 1) { _%>,<%_ } %>
                 <%_ } -%>
             );
         };
-        implementation[Number.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].<%- name %> = function <%- name %>(n, x) {
+        implementation[Number.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].<%- name -%> = function <%- name -%>(n, x) {
             return new Vector<%= size -%>D(
                 <% for (let i = 0; i < size; ++i) { _%>
                 n <%- op -%> x[internal][<%= i -%>]<%_ if (i < size - 1) { _%>,<%_ } %>
                 <%_ } -%>
             );
         };
-        implementation[Vector<%= size -%>D.prototype[polymorphism]][Number.prototype[polymorphism]].<%- name %> = function <%- name %>(x, n) {
+        implementation[Vector<%= size -%>D.prototype[polymorphism]][Number.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x, n) {
             return new Vector<%= size -%>D(
                 <% for (let i = 0; i < size; ++i) { _%>
                 x[internal][<%= i -%>] <%- op -%> n<%_ if (i < size - 1) { _%>,<%_ } %>
@@ -26,9 +27,31 @@
             );
         };
     <%_ } %>
-    <% for (const name of fn_names_1_arg) { _%>
-        implementation[Vector<%= size -%>D.prototype[polymorphism]].<%- name %> = function <%- name %>(x) {
+    <% for (const name of fn_math_arg_1) { _%>
+        implementation[Vector<%= size -%>D.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x) {
             return new Vector<%= size -%>D(<%- new Array(size).fill(0).map((_, i) => `Math.${name}(x[internal][${i}])`).join(', ') -%>);
         };
     <%_ } %>
 <% } -%>
+
+<% for (const [name, op] of Object.entries(math_binary_op)) { _%>
+    implementation[Number.prototype[polymorphism]][Number.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x, y) {
+        return x <%- op -%> y;
+    };
+<% } -%>
+<% for (const name of fn_math_arg_1) { _%>
+    implementation[Number.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x) {
+        return Math.<%- name -%>(x);
+    };
+<%_ } %>
+
+<% for (const name of Object.keys(math_binary_op)) { _%>
+    export function <%- name -%>(x, y) {
+        return implementation[x[polymorphism]][y[polymorphism]].<%- name -%>(x, y);
+    }
+<% } -%>
+<% for (const name of fn_math_arg_1) { _%>
+    export function <%- name -%>(x) {
+        return implementation[x[polymorphism]].<%- name -%>(x);
+    }
+<%_ } %>

@@ -1,3 +1,5 @@
+<% const vector_dim_names = ['x', 'y', 'z', 'w'].slice(0, locals.size); %>
+<% const vector_color_names = ['r', 'g', 'b', 'a'].slice(0, locals.size); %>
 export class Vector<%= locals.size %>D {
     constructor(...args) {
         let items = recursive_items_from_args(<%= locals.size %>, args);
@@ -36,6 +38,34 @@ export class Vector<%= locals.size %>D {
         implementation[this[polymorphism]][target[polymorphism]].copy_into(this, target);
         return target;
     }
+
+    <% for (const naming_scheme of [vector_dim_names, vector_color_names]) {
+        const index_names = Object.create(null);
+        for (let i = 0; i < naming_scheme.length; ++i) {
+            index_names[naming_scheme[i]] = i;
+        }
+        for (let name_size = 1; name_size <= 4; ++name_size) {
+            for (const name of locals.permutateNameFrom(naming_scheme, name_size)) {
+                const name_list = name.split('');
+                const index_list = name_list.map(n => index_names[n]); %>
+    get <%- name -%>() {
+        <%_ if (index_list.length === 1) { _%>
+        return this[internal][<%= index_list[0] -%>];
+        <%_ } else { _%>
+        return new Vector<%= index_list.length -%>D(<%- index_list.map(n => `this[internal][${n}]`).join(', ') -%>);
+        <%_ } _%>
+    }
+
+    set <%- name -%>(<%_ if (index_list.length === 1) { _%>value<%_ } else { _%>[...items]<%_ } _%>) {
+        <%_ if (index_list.length === 1) { _%>
+        this[internal][<%= index_list[0] -%>] = +value;
+        <%_ } else { _%>
+            <%_ for (let i = 0; i < index_list.length; ++i) { _%>
+        this[internal][<%= index_list[i] -%>] = +items[<%= i -%>];
+            <%_ } _%>
+        <%_ } _%>
+    }
+    <% }}} -%>
 }
 
 Vector<%= locals.size %>D.prototype[polymorphism] = Symbol(`Vector<%= locals.size %>D.polymorphism`);

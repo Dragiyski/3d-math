@@ -6,6 +6,7 @@ const polymorphism = Symbol('polymorphism');
 Number.prototype[polymorphism] = Symbol('Number.polymorphism');
 const implementation = Object.create(null);
 implementation[Number.prototype[polymorphism]] = Object.create(null);
+implementation[Number.prototype[polymorphism]][Number.prototype[polymorphism]] = Object.create(null);
 const internal = Symbol('internal');
 export const Vector = Object.create(null);
 export const Matrix = Object.create(null);
