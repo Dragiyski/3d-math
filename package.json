@@ -1,12 +1,21 @@
 {
-    "name": "math",
-    "private": true,
+    "name": "@dragiyski/math-3d",
+    "version": "0.0.1",
     "type": "module",
-    "dependencies": {
-        "ejs": "^3.1.9"
+    "author": {
+        "name": "Plamen Dragiyski",
+        "email": "plamen@dragiyski.org"
     },
     "devDependencies": {
+        "ejs": "^3.1.9",
         "@babel/eslint-parser": "^7.19.1",
         "eslint": "^8.35.0"
+    },
+    "files": [
+        "dist/*"
+    ],
+    "main": "dist/math.js",
+    "scripts": {
+        "prepare": "node src/generator.js"
     }
 }

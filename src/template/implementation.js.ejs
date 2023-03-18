@@ -89,8 +89,22 @@ implementation[Matrix<%= row_count -%>x<%= internal_count -%>_polymorphism][Matr
     );
 };
         <%_ } _%>
-    <%_ }
-} _%>
+implementation[Matrix<%= row_count -%>x<%= col_count -%>_polymorphism][Vector<%= col_count -%>D_polymorphism].mul = function mul(x, y) {
+    return new Vector<%= row_count -%>D(
+        <% for (let r = 0; r < row_count; ++r) { _%>
+        implementation[Vector<%= col_count -%>D_polymorphism][Vector<%= col_count -%>D_polymorphism].dot(x.rows[<%= r -%>], y)<%_ if (r < row_count - 1) { _%>,<%_ } %>
+        <%_ } _%>
+    );
+};
+implementation[Vector<%= row_count -%>D_polymorphism][Matrix<%= row_count -%>x<%= col_count -%>_polymorphism].mul = function mul(x, y) {
+    return new Vector<%= col_count -%>D(
+        <% for (let c = 0; c < col_count; ++c) { _%>
+        implementation[Vector<%= row_count -%>D_polymorphism][Vector<%= row_count -%>D_polymorphism].dot(x, y.columns[<%= c -%>])<%_ if (c < col_count - 1) { _%>,<%_ } %>
+        <%_ } _%>
+    );
+};
+    <%_ } _%>
+<%_ } _%>
 
 <% for (let size = 2; size <= 4; ++size) { _%>
     implementation[Matrix<%= size -%>x<%= size -%>_polymorphism].determinant = function determinant(x) {
@@ -114,16 +128,16 @@ implementation[Matrix<%= row_count -%>x<%= internal_count -%>_polymorphism][Matr
 
 <% for (const name of Object.keys(math_binary_op)) { _%>
     export function <%- name -%>(x, y) {
-        return (implementation[x[polymorphism]]?.[y[polymorphism]]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
+        return (implementation[x?.[polymorphism] ?? polymorphism]?.[y?.[polymorphism] ?? polymorphism]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
     }
 <% } -%>
 <% for (const name of [...fn_math_arg_1, 'neg', 'length', 'normalize', 'determinant']) { _%>
     export function <%- name -%>(x) {
-        return (implementation[x[polymorphism]]?.<%- name -%> ?? throw_type_error(<%= name -%>, x))(x);
+        return (implementation[x?.[polymorphism] ?? polymorphism]?.<%- name -%> ?? throw_type_error(<%= name -%>, x))(x);
     }
 <%_ } _%>
 <% for (const name of ['cross', 'dot']) { _%>
     export function <%- name -%>(x, y) {
-        return (implementation[x[polymorphism]]?.[y[polymorphism]]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
+        return (implementation[x?.[polymorphism] ?? polymorphism]?.[y?.[polymorphism] ?? polymorphism]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
     }
 <%_ } _%>

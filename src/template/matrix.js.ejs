@@ -32,9 +32,114 @@ export class Matrix<%= locals.rows %>x<%= locals.columns %> {
         <%_ } _%>
         return this;
     }
+
+    rotation(...args) {
+        return mul(this, Matrix<%= locals.rows -%>x<%= locals.rows -%>.rotation(...args));
+    }
+
+    scale(...args) {
+        return mul(this, Matrix<%= locals.rows -%>x<%= locals.rows -%>.scale(...args));
+    }
+        <%_ if (locals.rows === 3 || locals.rows === 4) { _%>
+
+        translation(...args) {
+            return mul(this, Matrix<%= locals.rows -%>x<%= locals.rows -%>.translation(...args));
+        }
+
+        static translation(...args) {
+            const vector = new Vector<%= locals.rows - 1 -%>D(...args);
+            return Matrix<%= locals.rows -%>x<%= locals.rows -%>.using_columns(
+                <% for (let i = 0; i < locals.rows - 1; ++i) { _%>
+                new Vector<%= locals.rows -%>D(<%- new Array(locals.rows).fill(0).map((v, k) => (k === i) ? 1 : 0).join(', ') -%>),
+                <%_ } _%>
+                new Vector<%= locals.rows -%>D(vector, 1)
+            );
+        }
+        <%_ } _%>
+        <%_ if (locals.rows === 2) { _%>
+
+            static rotation(radians) {
+                return new Matrix2x2(
+                    Math.cos(radians),
+                    -Math.sin(radians),
+                    Math.sin(radians),
+                    Math.cos(radians)
+                );
+            }
+
+            static scale(...axis) {
+                axis = new Vector2D(...axis);
+                return new Matrix2x2(
+                    axis.x, 0,
+                    0, axis.y
+                );
+            }
+        <%_ } else if (locals.rows === 3) { _%>
+
+            static rotation(radians, ...axis) {
+                if (axis.length === 0) {
+                    return new Matrix3x3(
+                        Math.cos(radians), -Math.sin(radians), 0,
+                        Math.sin(radians), Math.cos(radians), 0,
+                        0, 0, 1
+                    );
+                } else {
+                    const q = Vector4D.quaternions(radians, ...axis);
+                    return new Matrix3x3(
+                        1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.z * q.w, 2 * q.x * q.z + 2 * q.y * q.w,
+                        2 * q.x * q.y + 2 * q.z * q.w, 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.x * q.w,
+                        2 * q.x * q.z - 2 * q.y * q.w, 2 * q.y * q.z + 2 * q.x * q.w, 1 - 2 * q.x * q.x - 2 * q.y * q.y
+                    );
+                }
+            }
+
+            static scale(...args) {
+                let axis = recursive_items_from_args(3, args);
+                if (axis.length === 2) {
+                    return new Matrix3x3(
+                        axis[0], 0, 0,
+                        0, axis[1], 0,
+                        0, 0, 1
+                    );
+                }
+                axis = new Vector3D(...args);
+                return new Matrix3x3(
+                    axis[0], 0, 0,
+                    0, axis[1], 0,
+                    0, 0, axis[2]
+                );
+            }
+        <%_ } else if (locals.rows === 4) { _%>
+
+            static rotation(radians, ...axis) {
+                const q = Vector4D.quaternions(radians, ...axis);
+                return new Matrix4x4(
+                    1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.z * q.w, 2 * q.x * q.z + 2 * q.y * q.w, 0,
+                    2 * q.x * q.y + 2 * q.z * q.w, 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.x * q.w, 0,
+                    2 * q.x * q.z - 2 * q.y * q.w, 2 * q.y * q.z + 2 * q.x * q.w, 1 - 2 * q.x * q.x - 2 * q.y * q.y, 0,
+                    0, 0, 0, 1
+                );
+            }
+
+            static scale(...axis) {
+                axis = new Vector3D(...axis);
+                return new Matrix4x4(
+                    axis.x, 0, 0, 0,
+                    0, axis.y, 0, 0,
+                    0, 0, axis.z, 0,
+                    0, 0, 0, 1
+                );
+            }
+        <%_ } _%>
     <%_ } _%>
 }
 
 const Matrix<%= locals.rows %>x<%= locals.columns %>_polymorphism = Matrix<%= locals.rows %>x<%= locals.columns %>.prototype[polymorphism] = Symbol('Matrix<%= locals.rows %>x<%= locals.columns %>.polymorphism');
+
+Object.defineProperties(Matrix<%= locals.rows %>x<%= locals.columns %>.prototype, {
+    [Symbol.toStringTag]: {
+        value: 'Matrix<%= locals.rows %>x<%= locals.columns %>'
+    }
+});
 
 Matrix[<%= locals.rows %>][<%= locals.columns %>] = Matrix<%= locals.rows %>x<%= locals.columns %>;

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { dirname, resolve as resolvePath } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import Code from './code.js';
 import { get_determinant_code } from './matrix.js';
@@ -125,6 +125,11 @@ function json_stringify(value) {
     return json_stringify_object(value);
 }
 
+const libPath = resolvePath(__dir__, 'lib');
+const distPath = resolvePath(__dir__, '../dist');
+
+fs.mkdirSync(distPath, { recursive: true, mode: 0o755 });
+
 const cache = Object.create(null);
 
 {
@@ -148,6 +153,25 @@ const cache = Object.create(null);
     code.append(...script_code);
     code = code.toString();
     code = code.split(/\n{3,}/mg).join('\n\n');
-    code = code.trimEnd();
-    console.log(code.toString());
+    code = code.trimEnd() + '\n';
+    fs.writeFileSync(resolvePath(__dir__, '../dist/math.js'), code, { encoding: 'utf-8' });
 }
+
+fs.cpSync(libPath, distPath, {
+    dereference: false,
+    force: true,
+    preserveTimestamps: true,
+    recursive: true,
+    filter(src, dest) {
+        if (!src.startsWith(libPath)) {
+            return false;
+        }
+        if (!dest.startsWith(distPath)) {
+            return false;
+        }
+        return true;
+    }
+});
+
+// Ensure module is readable...
+await import(pathToFileURL(resolvePath(distPath, 'math.js')));

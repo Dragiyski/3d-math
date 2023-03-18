@@ -1,5 +1,5 @@
-<% const vector_dim_names = ['x', 'y', 'z', 'w'].slice(0, locals.size); %>
-<% const vector_color_names = ['r', 'g', 'b', 'a'].slice(0, locals.size); %>
+<%_ const vector_dim_names = ['x', 'y', 'z', 'w'].slice(0, locals.size); _%>
+<%_ const vector_color_names = ['r', 'g', 'b', 'a'].slice(0, locals.size); _%>
 export class Vector<%= locals.size %>D {
     constructor(...args) {
         <% if (locals.size < 4) { _%>
@@ -53,6 +53,22 @@ export class Vector<%= locals.size %>D {
         }
         return target.set(this);
     }
+    <%_ if (locals.size === 4) { _%>
+
+        static quaternions(radians, ...coords) {
+            let axis = recursive_items_from_args(3, coords);
+            if (axis.length !== 3) {
+                throw new TypeError(`Invalid number of arguments, expected 3D coordinates, got ${axis.length}D`);
+            }
+            axis = normalize(new Vector3D(axis));
+            return new Vector4D(
+                axis[0] * Math.sin(radians / 2),
+                axis[1] * Math.sin(radians / 2),
+                axis[2] * Math.sin(radians / 2),
+                Math.cos(radians / 2)
+            );
+        }
+    <%_ } _%>
 
     <% for (const naming_scheme of [vector_dim_names, vector_color_names]) {
         const index_names = Object.create(null);
@@ -88,6 +104,9 @@ const Vector<%= locals.size %>D_polymorphism = Vector<%= locals.size %>D.prototy
 Object.defineProperties(Vector<%= locals.size %>D.prototype, {
     size: {
         value: <%= locals.size %>
+    },
+    [Symbol.toStringTag]: {
+        value: 'Vector<%= locals.size %>D'
     }
 });
 
