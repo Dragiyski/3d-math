@@ -1,25 +1,25 @@
 <%_ const fn_math_arg_1 = ['abs', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atanh', 'cbrt', 'ceil', 'cos', 'cosh', 'exp', 'expm1', 'floor', 'log', 'log10', 'log1p', 'log2', 'round', 'sign', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'] _%> 
 <%_ const math_binary_op = { add: '+', sub: '-', mul: '*', div: '/', mod: '%' }; _%>
 <% for (let size = 2; size <= 4; ++size) { -%>
-    implementation[Vector<%= size -%>D.prototype[polymorphism]].neg = function neg(x) {
+    implementation[Vector<%= size -%>D_polymorphism].neg = function neg(x) {
         return new Vector<%= size -%>D(<%- new Array(size).fill(0).map((_, i) => `-x[internal][${i}]`).join(', ') -%>);
     };
     <% for (const [name, op] of Object.entries(math_binary_op)) { _%>
-        implementation[Vector<%= size -%>D.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x, y) {
+        implementation[Vector<%= size -%>D_polymorphism][Vector<%= size -%>D_polymorphism].<%- name -%> = function <%- name -%>(x, y) {
             return new Vector<%= size -%>D(
                 <% for (let i = 0; i < size; ++i) { _%>
                 x[internal][<%= i -%>] <%- op -%> y[internal][<%= i -%>]<%_ if (i < size - 1) { _%>,<%_ } %>
                 <%_ } -%>
             );
         };
-        implementation[Number.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].<%- name -%> = function <%- name -%>(n, x) {
+        implementation[Number_polymorphism][Vector<%= size -%>D_polymorphism].<%- name -%> = function <%- name -%>(n, x) {
             return new Vector<%= size -%>D(
                 <% for (let i = 0; i < size; ++i) { _%>
                 n <%- op -%> x[internal][<%= i -%>]<%_ if (i < size - 1) { _%>,<%_ } %>
                 <%_ } -%>
             );
         };
-        implementation[Vector<%= size -%>D.prototype[polymorphism]][Number.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x, n) {
+        implementation[Vector<%= size -%>D_polymorphism][Number_polymorphism].<%- name -%> = function <%- name -%>(x, n) {
             return new Vector<%= size -%>D(
                 <% for (let i = 0; i < size; ++i) { _%>
                 x[internal][<%= i -%>] <%- op -%> n<%_ if (i < size - 1) { _%>,<%_ } %>
@@ -28,40 +28,40 @@
         };
     <%_ } %>
     <% for (const name of fn_math_arg_1) { _%>
-        implementation[Vector<%= size -%>D.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x) {
+        implementation[Vector<%= size -%>D_polymorphism].<%- name -%> = function <%- name -%>(x) {
             return new Vector<%= size -%>D(<%- new Array(size).fill(0).map((_, i) => `Math.${name}(x[internal][${i}])`).join(', ') -%>);
         };
     <%_ } %>
-    implementation[Vector<%= size -%>D.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].atan2 = function atan2(y, x) {
+    implementation[Vector<%= size -%>D_polymorphism][Vector<%= size -%>D_polymorphism].atan2 = function atan2(y, x) {
         return new Vector<%= size -%>D(
             <% for (let i = 0; i < size; ++i) { _%>
                 Math.atan2(y[internal][<%= i -%>], x[internal][<%= i -%>])<%_ if (i < size - 1) { _%>,<%_ } %>
             <%_ } -%>
         );
     };
-    implementation[Vector<%= size -%>D.prototype[polymorphism]][Vector<%= size -%>D.prototype[polymorphism]].dot = function dot(x, y) {
+    implementation[Vector<%= size -%>D_polymorphism][Vector<%= size -%>D_polymorphism].dot = function dot(x, y) {
         return <%- new Array(size).fill(0).map((_, i) => `x[internal][${i}] * y[internal][${i}]`).join(' + ') -%>;
     };
-    implementation[Vector<%= size -%>D.prototype[polymorphism]].length = function length(x) {
+    implementation[Vector<%= size -%>D_polymorphism].length = function length(x) {
         return Math.hypot(...x);
     };
-    implementation[Vector<%= size -%>D.prototype[polymorphism]].normalize = function normalize(x) {
-        return div(x, length(x));
+    implementation[Vector<%= size -%>D_polymorphism].normalize = function normalize(x) {
+        return implementation[Vector<%= size -%>D_polymorphism][Number_polymorphism].div(x, implementation[Vector<%= size -%>D_polymorphism].length(x));
     };
 <% } -%>
 
 <% for (const [name, op] of Object.entries(math_binary_op)) { _%>
-    implementation[Number.prototype[polymorphism]][Number.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x, y) {
+    implementation[Number_polymorphism][Number_polymorphism].<%- name -%> = function <%- name -%>(x, y) {
         return x <%- op -%> y;
     };
 <% } -%>
 <% for (const name of fn_math_arg_1) { _%>
-    implementation[Number.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x) {
+    implementation[Number_polymorphism].<%- name -%> = function <%- name -%>(x) {
         return Math.<%- name -%>(x);
     };
 <%_ } %>
 
-implementation[Vector3D.prototype[polymorphism]][Vector3D.prototype[polymorphism]].cross = function cross(x, y) {
+implementation[Vector3D_polymorphism][Vector3D_polymorphism].cross = function cross(x, y) {
     return new Vector3D(
         x[internal][1] * y[internal][2] - x[internal][2] * y[internal][1],
         x[internal][2] * y[internal][0] - x[internal][0] * y[internal][2],
@@ -72,19 +72,19 @@ implementation[Vector3D.prototype[polymorphism]][Vector3D.prototype[polymorphism
 <% for (let row_count = 2; row_count <= 4; ++row_count) {
     for (let col_count = 2; col_count <= 4; ++col_count) { _%>
         <%_ for (const name of Object.keys(math_binary_op)) { _%>
-implementation[Number.prototype[polymorphism]][Matrix<%= row_count -%>x<%= col_count -%>.prototype[polymorphism]].<%- name -%> = function <%- name -%>(n, x) {
-    return Matrix<%= row_count -%>x<%= col_count -%>.using_rows(...x.rows.map(v => <%- name -%>(n, v)));
+implementation[Number_polymorphism][Matrix<%= row_count -%>x<%= col_count -%>_polymorphism].<%- name -%> = function <%- name -%>(n, x) {
+    return Matrix<%= row_count -%>x<%= col_count -%>.using_rows(...x.rows.map(v => implementation[Number_polymorphism][Vector<%= col_count -%>D_polymorphism].<%- name -%>(n, v)));
 };
-implementation[Matrix<%= row_count -%>x<%= col_count -%>.prototype[polymorphism]][Number.prototype[polymorphism]].<%- name -%> = function <%- name -%>(x, n) {
-    return Matrix<%= row_count -%>x<%= col_count -%>.using_rows(...x.rows.map(v => <%- name -%>(v, n)));
+implementation[Matrix<%= row_count -%>x<%= col_count -%>_polymorphism][Number_polymorphism].<%- name -%> = function <%- name -%>(x, n) {
+    return Matrix<%= row_count -%>x<%= col_count -%>.using_rows(...x.rows.map(v => implementation[Vector<%= col_count -%>D_polymorphism][Number_polymorphism].<%- name -%>(v, n)));
 };
         <%_ } _%>
         <%_ for (let internal_count = 2; internal_count <= 4; ++internal_count) { _%>
-implementation[Matrix<%= row_count -%>x<%= internal_count -%>.prototype[polymorphism]][Matrix<%= internal_count -%>x<%= col_count -%>.prototype[polymorphism]].mul = function mul(x, y) {
+implementation[Matrix<%= row_count -%>x<%= internal_count -%>_polymorphism][Matrix<%= internal_count -%>x<%= col_count -%>_polymorphism].mul = function mul(x, y) {
     return new Matrix<%= row_count -%>x<%= col_count -%>(
         <% for (let r = 0; r < row_count; ++r) {
             for (let c = 0; c < col_count; ++c) { _%>
-        dot(x.rows[<%= r -%>], y.columns[<%= c -%>])<%_ if (c * row_count + r < (row_count * col_count) - 1) { _%>,<%_ } %>
+        implementation[Vector<%= internal_count -%>D_polymorphism][Vector<%= internal_count -%>D_polymorphism].dot(x.rows[<%= r -%>], y.columns[<%= c -%>])<%_ if (c * row_count + r < (row_count * col_count) - 1) { _%>,<%_ } %>
         <%_ }} _%>
     );
 };
@@ -92,32 +92,38 @@ implementation[Matrix<%= row_count -%>x<%= internal_count -%>.prototype[polymorp
     <%_ }
 } _%>
 
+<% for (let size = 2; size <= 4; ++size) { _%>
+    implementation[Matrix<%= size -%>x<%= size -%>_polymorphism].determinant = function determinant(x) {
+        return <%- locals.get_determinant_code('x.rows', size) %>;
+    };
+    implementation[Matrix<%= size -%>x<%= size -%>_polymorphism].inverse = function inverse(x) {
+        let det = implementation[Matrix<%= size -%>x<%= size -%>_polymorphism].determinant(x);
+        if (limits.number.isEqual(det, 0)) {
+            return null;
+        }
+        det = 1 / det;
+        return new Matrix<%= size -%>x<%= size -%>(
+            <% for (let j = 0; j < size; ++j) { _%>
+                <% for (let i = 0; i < size; ++i) { _%>
+            (<%= (i + j) % 2 ? -1 : +1 -%>) * det * (<%- locals.get_determinant_code('x.rows', size - 1, new Array(size).fill(0).map((v, k) => k).filter(v => v !== i), new Array(size).fill(0).map((v, k) => k).filter(v => v !== j)) -%>)<%_ if (i * size + j < size * size - 1) { _%>,<%_ } %>
+                <%_ } _%>
+            <%_ } _%>
+        );
+    };
+<%_ } _%>
+
 <% for (const name of Object.keys(math_binary_op)) { _%>
     export function <%- name -%>(x, y) {
-        return implementation[x[polymorphism]][y[polymorphism]].<%- name -%>(x, y);
+        return (implementation[x[polymorphism]]?.[y[polymorphism]]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
     }
 <% } -%>
-<% for (const name of fn_math_arg_1) { _%>
+<% for (const name of [...fn_math_arg_1, 'neg', 'length', 'normalize', 'determinant']) { _%>
     export function <%- name -%>(x) {
-        return implementation[x[polymorphism]].<%- name -%>(x);
+        return (implementation[x[polymorphism]]?.<%- name -%> ?? throw_type_error(<%= name -%>, x))(x);
     }
-<%_ } %>
-export function neg(x) {
-    return implementation[x[polymorphism]].neg(x);
-}
-
-export function length(x) {
-    return implementation[x[polymorphism]].length(x);
-}
-
-export function normalize(x) {
-    return implementation[x[polymorphism]].normalize(x);
-}
-
-export function dot(x, y) {
-    return implementation[x[polymorphism]][y[polymorphism]].dot(x);
-}
-
-export function cross(x, y) {
-    return implementation[x[polymorphism]][y[polymorphism]].cross(x);
-}
+<%_ } _%>
+<% for (const name of ['cross', 'dot']) { _%>
+    export function <%- name -%>(x, y) {
+        return (implementation[x[polymorphism]]?.[y[polymorphism]]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
+    }
+<%_ } _%>

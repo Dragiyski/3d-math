@@ -3,6 +3,7 @@ import { dirname, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import Code from './code.js';
+import { get_determinant_code } from './matrix.js';
 import { renderFile as renderFileAsync } from 'ejs';
 
 const renderFile = promisify(renderFileAsync);
@@ -40,7 +41,7 @@ function * permutateNameFrom(list, size) {
 function matrixDefaultValues(rows, columns) {
     let values = (new Array(rows * columns)).fill(0);
     if (rows === columns) {
-        values = values.map((v, i) => (i % (rows + 1) ? 1 : 0));
+        values = values.map((v, i) => (i % (rows + 1) === 0 ? 1 : 0));
     }
     return values;
 }
@@ -134,7 +135,8 @@ const cache = Object.create(null);
         vector_name_index,
         vector_default_values,
         permutateNameFrom,
-        matrixDefaultValues
+        matrixDefaultValues,
+        get_determinant_code
     }, {
         cache,
         escape: json_stringify,

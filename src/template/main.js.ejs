@@ -1,12 +1,13 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-extend-native */
 export * as limits from './limits.js';
 export * from './power.js';
 
 const polymorphism = Symbol('polymorphism');
-Number.prototype[polymorphism] = Symbol('Number.polymorphism');
+const Number_polymorphism = Number.prototype[polymorphism] = Symbol('Number.polymorphism');
 const implementation = Object.create(null);
-implementation[Number.prototype[polymorphism]] = Object.create(null);
-implementation[Number.prototype[polymorphism]][Number.prototype[polymorphism]] = Object.create(null);
+implementation[Number_polymorphism] = Object.create(null);
+implementation[Number_polymorphism][Number_polymorphism] = Object.create(null);
 const internal = Symbol('internal');
 export const Vector = Object.create(null);
 export const Matrix = Object.create(null);
@@ -29,3 +30,40 @@ Matrix[<%= size %>] = Object.create(null);
 <%- await include('impl-matrix.js.ejs') -%>
 
 <%- await include('implementation.js.ejs') -%>
+
+function throw_type_error(name, ...args) {
+    throw new TypeError(`"${name}": no matching overloaded function found, capable of accepting [${args.map(get_type).join(', ')}]`);
+}
+
+function get_type(value) {
+    if (value === void 0) {
+        return 'undefined';
+    }
+    if (value === null) {
+        return 'null';
+    }
+    if (value !== Object(value)) {
+        return typeof value;
+    }
+    if (typeof value === 'function') {
+        return 'function';
+    }
+    const proto = Object.getPrototypeOf(value);
+    let has_object_proto = false;
+    for (let p = proto; p != null; p = Object.getPrototypeOf(p)) {
+        if (p === Object.prototype) {
+            has_object_proto = true;
+            break;
+        }
+    }
+    if (has_object_proto) {
+        const constructor = proto.constructor;
+        if (typeof constructor === 'function') {
+            const name = constructor.name;
+            if (typeof name === 'string' && name.trim().length > 0) {
+                return `#<${name}>`;
+            }
+        }
+    }
+    return '#<Object>';
+}

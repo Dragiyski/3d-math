@@ -83,7 +83,7 @@ export class Vector<%= locals.size %>D {
     <% }}} -%>
 }
 
-Vector<%= locals.size %>D.prototype[polymorphism] = Symbol(`Vector<%= locals.size %>D.polymorphism`);
+const Vector<%= locals.size %>D_polymorphism = Vector<%= locals.size %>D.prototype[polymorphism] = Symbol(`Vector<%= locals.size %>D.polymorphism`);
 
 Object.defineProperties(Vector<%= locals.size %>D.prototype, {
     size: {

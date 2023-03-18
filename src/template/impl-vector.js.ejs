@@ -121,10 +121,10 @@ function vector_create_piecewise(Class, size, items) {
 }
 
 <% for (let a = 2; a <= 4; ++a) { -%>
-implementation[Vector<%= a -%>D.prototype[polymorphism]] = Object.create(null);
-implementation[Number.prototype[polymorphism]][Vector<%= a -%>D.prototype[polymorphism]] = Object.create(null);
-implementation[Vector<%= a -%>D.prototype[polymorphism]][Number.prototype[polymorphism]] = Object.create(null);
+implementation[Vector<%= a -%>D_polymorphism] = Object.create(null);
+implementation[Number_polymorphism][Vector<%= a -%>D_polymorphism] = Object.create(null);
+implementation[Vector<%= a -%>D_polymorphism][Number_polymorphism] = Object.create(null);
 <% for (let b = 2; b <= 4; ++b) { -%>
-implementation[Vector<%= a -%>D.prototype[polymorphism]][Vector<%= b -%>D.prototype[polymorphism]] = Object.create(null);
+implementation[Vector<%= a -%>D_polymorphism][Vector<%= b -%>D_polymorphism] = Object.create(null);
 <% } %>
 <% } %>

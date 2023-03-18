@@ -24,8 +24,17 @@ export class Matrix<%= locals.rows %>x<%= locals.columns %> {
     static using_columns(...vectors) {
         return matrix_create_from_column_vectors(this, <%= locals.rows %>, <%= locals.columns %>, vectors, false);
     }
+    <%_ if (locals.rows === locals.columns) { _%>
+
+    set_identity() {
+        <% for (let i = 0; i < locals.rows; ++i) { _%>
+            this.rows[<%= i -%>].set(<%- new Array(locals.rows).fill(0).map((v, x) => x === i ? 1 : v).join(', ') -%>);
+        <%_ } _%>
+        return this;
+    }
+    <%_ } _%>
 }
 
-Matrix<%= locals.rows %>x<%= locals.columns %>.prototype[polymorphism] = Symbol('Matrix<%= locals.rows %>x<%= locals.columns %>.polymorphism');
+const Matrix<%= locals.rows %>x<%= locals.columns %>_polymorphism = Matrix<%= locals.rows %>x<%= locals.columns %>.prototype[polymorphism] = Symbol('Matrix<%= locals.rows %>x<%= locals.columns %>.polymorphism');
 
 Matrix[<%= locals.rows %>][<%= locals.columns %>] = Matrix<%= locals.rows %>x<%= locals.columns %>;

@@ -123,10 +123,10 @@ function matrix_create_from_column_vectors(Class, rows, cols, vectors, copy) {
 
 <% for (let x_rows = 2; x_rows <= 4; ++x_rows) {
     for (let x_cols = 2; x_cols <= 4; ++x_cols) { -%>
-implementation[Matrix<%= x_rows -%>x<%= x_cols -%>.prototype[polymorphism]] = Object.create(null);
-implementation[Number.prototype[polymorphism]][Matrix<%= x_rows -%>x<%= x_cols -%>.prototype[polymorphism]] = Object.create(null);
-implementation[Matrix<%= x_rows -%>x<%= x_cols -%>.prototype[polymorphism]][Number.prototype[polymorphism]] = Object.create(null);
+implementation[Matrix<%= x_rows -%>x<%= x_cols -%>_polymorphism] = Object.create(null);
+implementation[Number_polymorphism][Matrix<%= x_rows -%>x<%= x_cols -%>_polymorphism] = Object.create(null);
+implementation[Matrix<%= x_rows -%>x<%= x_cols -%>_polymorphism][Number_polymorphism] = Object.create(null);
 <% for (let y_rows = 2; y_rows <= 4; ++y_rows) {
     for (let y_cols = 2; y_cols <= 4; ++y_cols) { -%>
-implementation[Matrix<%= x_rows -%>x<%= x_cols -%>.prototype[polymorphism]][Matrix<%= y_rows -%>x<%= y_cols -%>.prototype[polymorphism]] = Object.create(null);
+implementation[Matrix<%= x_rows -%>x<%= x_cols -%>_polymorphism][Matrix<%= y_rows -%>x<%= y_cols -%>_polymorphism] = Object.create(null);
 <% }}}} %>
