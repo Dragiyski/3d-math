@@ -34,16 +34,16 @@ export class Matrix<%= locals.rows %>x<%= locals.columns %> {
     }
 
     rotation(...args) {
-        return mul(this, Matrix<%= locals.rows -%>x<%= locals.rows -%>.rotation(...args));
+        return mul(Matrix<%= locals.rows -%>x<%= locals.rows -%>.rotation(...args), this);
     }
 
     scale(...args) {
-        return mul(this, Matrix<%= locals.rows -%>x<%= locals.rows -%>.scale(...args));
+        return mul(Matrix<%= locals.rows -%>x<%= locals.rows -%>.scale(...args), this);
     }
         <%_ if (locals.rows === 3 || locals.rows === 4) { _%>
 
         translation(...args) {
-            return mul(this, Matrix<%= locals.rows -%>x<%= locals.rows -%>.translation(...args));
+            return mul(Matrix<%= locals.rows -%>x<%= locals.rows -%>.translation(...args), this);
         }
 
         static translation(...args) {
