@@ -102,7 +102,19 @@ export class Vector<%= locals.size %>D {
 const Vector<%= locals.size %>D_polymorphism = Vector<%= locals.size %>D.prototype[polymorphism] = Symbol(`Vector<%= locals.size %>D.polymorphism`);
 
 Object.defineProperties(Vector<%= locals.size %>D.prototype, {
+    <% for (let i = 0; i < locals.size; ++i) { _%>
+    <%= i -%>: {
+        enumerable: true,
+        get() {
+            return this[internal][<%= i -%>];
+        },
+        set(value) {
+            this[internal][<%= i -%>] = +value;
+        }
+    },
+    <%_ } _%>
     size: {
+        enumerable: true,
         value: <%= locals.size %>
     },
     [Symbol.toStringTag]: {

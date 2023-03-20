@@ -76,8 +76,8 @@ function vector_create_piecewise(Class, size, items) {
         throw new TypeError('Invalid number of arguments');
     }
 
-    const array = Object.create(Array.prototype);
-    Object.defineProperty(array, 'length', {
+    const target = Object.create(Array.prototype);
+    Object.defineProperty(target, 'length', {
         value: size
     });
     for (let i = 0; i < size; ++i) {
@@ -88,12 +88,12 @@ function vector_create_piecewise(Class, size, items) {
                     throw new TypeError('ArrayReference by an array must contain 1 or 2 elements: [array, offset = 0]');
                 }
                 const [array, offset = 0] = item;
-                if (!apply_reference(i, array, offset)) {
+                if (!apply_reference(target, i, array, offset)) {
                     throw new TypeError('Invalid reference: expected [array, offset]');
                 }
             } else {
                 const { array, offset = 0 } = item;
-                if (!apply_reference(i, array, offset)) {
+                if (!apply_reference(target, i, array, offset)) {
                     throw new TypeError('Invalid reference: expected { array, offset }');
                 }
             }
@@ -103,11 +103,12 @@ function vector_create_piecewise(Class, size, items) {
     }
 
     const self = Object.create(Class.prototype);
-    self[internal] = Object.seal(array);
+    self[internal] = Object.seal(target);
+    return self;
 
-    function apply_reference(index, array, offset) {
+    function apply_reference(target, index, array, offset) {
         if (array === Object(array) && typeof array[Symbol.iterator] === 'function' && offset in array) {
-            Object.defineProperty(array, index, {
+            Object.defineProperty(target, index, {
                 enumerable: true,
                 get: () => +array[offset],
                 set: value => {
