@@ -131,7 +131,7 @@ implementation[Vector<%= row_count -%>D_polymorphism][Matrix<%= row_count -%>x<%
         return (implementation[x?.[polymorphism] ?? polymorphism]?.[y?.[polymorphism] ?? polymorphism]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
     }
 <% } -%>
-<% for (const name of [...fn_math_arg_1, 'neg', 'length', 'normalize', 'determinant']) { _%>
+<% for (const name of [...fn_math_arg_1, 'neg', 'length', 'normalize', 'determinant', 'inverse']) { _%>
     export function <%- name -%>(x) {
         return (implementation[x?.[polymorphism] ?? polymorphism]?.<%- name -%> ?? throw_type_error(<%= name -%>, x))(x);
     }

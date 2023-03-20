@@ -69,3 +69,11 @@ function get_type(value) {
     }
     return '#<Object>';
 }
+
+export function radians_from(value) {
+    return value / 180 * Math.PI;
+}
+
+export function degrees_from(value) {
+    return value / Math.PI * 180;
+}

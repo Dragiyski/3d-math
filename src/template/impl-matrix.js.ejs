@@ -25,6 +25,9 @@ function matrix_init_properties_from_internal(self, rows, cols) {
             value: Object.create(Array.prototype, {
                 length: {
                     value: cols
+                },
+                array: {
+                    get: () => self.columns.map(column => [...column]).flat()
                 }
             })
         },
@@ -33,6 +36,9 @@ function matrix_init_properties_from_internal(self, rows, cols) {
             value: Object.create(Array.prototype, {
                 length: {
                     value: rows
+                },
+                array: {
+                    get: () => self.rows.map(row => [...row]).flat()
                 }
             })
         }
@@ -111,7 +117,7 @@ function matrix_create_from_column_vectors(Class, rows, cols, vectors, copy) {
         for (let j = 0; j < cols; ++j) {
             refs[j] = [self[internal].columns[j], i];
         }
-        self[internal].columns[i] = Vector[rows].piecewise(...refs);
+        self[internal].rows[i] = Vector[rows].piecewise(...refs);
     }
 
     Object.seal(self[internal].rows);
