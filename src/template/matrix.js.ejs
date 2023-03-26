@@ -84,13 +84,17 @@ export class Matrix<%= locals.rows %>x<%= locals.columns %> {
                         0, 0, 1
                     );
                 } else {
-                    const q = Vector4D.quaternions(radians, ...axis);
-                    return new Matrix3x3(
-                        1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.z * q.w, 2 * q.x * q.z + 2 * q.y * q.w,
-                        2 * q.x * q.y + 2 * q.z * q.w, 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.x * q.w,
-                        2 * q.x * q.z - 2 * q.y * q.w, 2 * q.y * q.z + 2 * q.x * q.w, 1 - 2 * q.x * q.x - 2 * q.y * q.y
-                    );
+                    return this.rotation_from_quaternions(Vector4D.quaternions(radians, ...axis));
                 }
+            }
+
+            static rotation_from_quaternions(...args) {
+                const q = new Vector4D(...args);
+                return new Matrix3x3(
+                    1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.z * q.w, 2 * q.x * q.z + 2 * q.y * q.w,
+                    2 * q.x * q.y + 2 * q.z * q.w, 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.x * q.w,
+                    2 * q.x * q.z - 2 * q.y * q.w, 2 * q.y * q.z + 2 * q.x * q.w, 1 - 2 * q.x * q.x - 2 * q.y * q.y
+                );
             }
 
             static scale(...args) {
@@ -112,7 +116,11 @@ export class Matrix<%= locals.rows %>x<%= locals.columns %> {
         <%_ } else if (locals.rows === 4) { _%>
 
             static rotation(radians, ...axis) {
-                const q = Vector4D.quaternions(radians, ...axis);
+                return this.rotation_from_quaternions(Vector4D.quaternions(radians, ...axis));
+            }
+
+            static rotation_from_quaternions(...args) {
+                const q = new Vector4D(...args);
                 return new Matrix4x4(
                     1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.z * q.w, 2 * q.x * q.z + 2 * q.y * q.w, 0,
                     2 * q.x * q.y + 2 * q.z * q.w, 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.x * q.w, 0,

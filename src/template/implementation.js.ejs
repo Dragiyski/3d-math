@@ -103,6 +103,9 @@ implementation[Vector<%= row_count -%>D_polymorphism][Matrix<%= row_count -%>x<%
         <%_ } _%>
     );
 };
+implementation[Matrix<%= row_count -%>x<%= col_count -%>_polymorphism].transpose = function transpose(m) {
+    return Matrix<%= col_count -%>x<%= row_count -%>.from_columns(...m.rows);
+};
     <%_ } _%>
 <%_ } _%>
 
@@ -131,7 +134,7 @@ implementation[Vector<%= row_count -%>D_polymorphism][Matrix<%= row_count -%>x<%
         return (implementation[x?.[polymorphism] ?? polymorphism]?.[y?.[polymorphism] ?? polymorphism]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
     }
 <% } -%>
-<% for (const name of [...fn_math_arg_1, 'neg', 'length', 'normalize', 'determinant', 'inverse']) { _%>
+<% for (const name of [...fn_math_arg_1, 'neg', 'length', 'normalize', 'determinant', 'inverse', 'transpose']) { _%>
     export function <%- name -%>(x) {
         return (implementation[x?.[polymorphism] ?? polymorphism]?.<%- name -%> ?? throw_type_error(<%= name -%>, x))(x);
     }
@@ -140,4 +143,17 @@ implementation[Vector<%= row_count -%>D_polymorphism][Matrix<%= row_count -%>x<%
     export function <%- name -%>(x, y) {
         return (implementation[x?.[polymorphism] ?? polymorphism]?.[y?.[polymorphism] ?? polymorphism]?.<%- name -%> ?? throw_type_error(<%= name -%>, x, y))(x, y);
     }
+<%_ } _%>
+<% for (let size = 2; size <= 3; ++size) { _%>
+    implementation[Vector<%= size -%>D_polymorphism][Number_polymorphism].hg_expand = function hg_expand(vector, value) {
+        return new Vector<%= size +1 -%>D(vector, value);
+    };
+<%_ } _%>
+<% for (let size = 3; size <= 4; ++size) { _%>
+    implementation[Vector<%= size -%>D_polymorphism].hg_collapse = function hg_collapse(vector, divide) {
+        if (divide) {
+            return div(vector.<%- ['x', 'y', 'z'].slice(0, size - 1).join('') -%>, vector.<%- ['x', 'y', 'z', 'w'][size - 1] -%>);
+        }
+        return vector.<%- ['x', 'y', 'z'].slice(0, size - 1).join('') -%>;
+    };
 <%_ } _%>

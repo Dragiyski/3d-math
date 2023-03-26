@@ -77,3 +77,11 @@ export function radians_from(value) {
 export function degrees_from(value) {
     return value / Math.PI * 180;
 }
+
+export function hg_expand(vector, value = 1) {
+    return implementation[vector[polymorphism]][value[polymorphism]].hg_expand(vector, value);
+}
+
+export function hg_collapse(vector, divide = true) {
+    return implementation[vector[polymorphism]].hg_collapse(vector, divide);
+}
