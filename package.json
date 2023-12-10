@@ -7,15 +7,19 @@
         "email": "plamen@dragiyski.org"
     },
     "devDependencies": {
-        "ejs": "^3.1.9",
         "@babel/eslint-parser": "^7.19.1",
-        "eslint": "^8.35.0"
+        "c8": "^8.0.1",
+        "ejs": "^3.1.9",
+        "eslint": "^8.35.0",
+        "mocha": "^10.2.0"
     },
     "files": [
         "dist/*"
     ],
     "main": "dist/math.js",
     "scripts": {
-        "prepare": "node src/generator.js"
+        "prepare": "node src/generator.js",
+        "test": "mocha",
+        "coverage": "c8 npm run test"
     }
 }

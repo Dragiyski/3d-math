@@ -2,23 +2,11 @@
 <%_ const vector_color_names = ['r', 'g', 'b', 'a'].slice(0, locals.size); _%>
 export class Vector<%= locals.size %>D {
     constructor(...args) {
-        <% if (locals.size < 4) { _%>
-        if (args.length === 1 && args[0] instanceof Vector<%= locals.size + 1 %>D) {
-            this[internal] = Object.seal([
-                <% for (let i = 0; i < locals.size; ++i) { _%>
-                args[0][internal][<%= i -%>] / args[0][internal][<%= locals.size -%>]<%_ if (i < locals.size - 1) { _%>,<%_ } %>
-                <%_ } _%>
-            ]);
-            return;
-        }
-        <%_ } _%>
         let items = recursive_items_from_args(<%= locals.size %>, args);
-        if (items.length === 0) {
-            items = <%= [0, 0, 0, 1].slice(0, locals.size) %>;
-        } else if (items.length === 1) {
+        if (items.length === 1) {
             items = (new Array(<%= locals.size %>).fill(items[0]));
-        } else if (items.length !== <%= locals.size %>) {
-            throw new TypeError(`Invalid number of arguments: expected 0, 1, or <%= locals.size %>, got ${items.length}`);
+        } else if (items.length < <%= locals.size %>) {
+            items.push(...<%= [0, 0, 0, 1].slice(0, locals.size) %>.slice(items.length));
         }
         this[internal] = Object.seal(items.map(item => +item));
     }

@@ -10,3 +10,7 @@ node_modules/
 
 # The generated output dir
 dist/
+
+# Code coverage generate directories
+coverage/
+
