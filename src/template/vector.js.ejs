@@ -29,6 +29,7 @@ export class Vector<%= locals.size %>D {
 
     set(...args) {
         const items = recursive_items_from_args(<%= locals.size -%>, args);
+        items.push(...<%= [0, 0, 0, 1].slice(0, locals.size) %>.slice(items.length));
         <% for (let i = 0; i < locals.size; ++i) { _%>
         this[internal][<%= i -%>] = +items[<%= i -%>];
         <%_ } _%>

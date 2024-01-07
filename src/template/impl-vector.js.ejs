@@ -25,6 +25,9 @@ function recursive_items_from_args(size, args) {
 }
 
 function vector_create_from_array(Class, size, array, offset) {
+    if (!Number.isSafeInteger(array?.length) || typeof array[Symbol.iterator] !== 'function') {
+        throw new TypeError(`Invalid argument [array]: not an array-like object`);
+    }
     if (!Number.isSafeInteger(offset)) {
         throw new TypeError(`Invalid argument [offset]: not an index`);
     }
@@ -44,6 +47,9 @@ function vector_create_from_array(Class, size, array, offset) {
 }
 
 function vector_create_using_array(Class, size, array, offset = 0) {
+    if (!Number.isSafeInteger(array?.length) || typeof array[Symbol.iterator] !== 'function') {
+        throw new TypeError(`Invalid argument [array]: not an array-like object`);
+    }
     if (!Number.isSafeInteger(offset)) {
         throw new TypeError(`Invalid argument [offset]: not an index`);
     }
@@ -107,7 +113,7 @@ function vector_create_piecewise(Class, size, items) {
     return self;
 
     function apply_reference(target, index, array, offset) {
-        if (array === Object(array) && typeof array[Symbol.iterator] === 'function' && offset in array) {
+        if (array === Object(array) && offset in array) {
             Object.defineProperty(target, index, {
                 enumerable: true,
                 get: () => +array[offset],
