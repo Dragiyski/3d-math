@@ -38,7 +38,7 @@ export class Vector<%= locals.size %>D {
 
     into(target) {
         if (!(target instanceof Vector<%= locals.size %>D)) {
-            throw new TypeError(`Invalid arguments`);
+            throw new TypeError(`Expected [object Vector<%= locals.size %>D], got ${get_type(target)}`);
         }
         return target.set(this);
     }

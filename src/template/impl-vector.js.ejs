@@ -17,7 +17,7 @@ function recursive_items_from_args(size, args) {
                     return true;
                 }
             } else {
-                throw new TypeError('Invalid arguments');
+                throw new TypeError(`Expected [number] or iterable [object], got ${get_type(item)}`);
             }
         }
         return false;

@@ -5,38 +5,12 @@ import { promisify } from 'node:util';
 import Code from './code.js';
 import { get_determinant_code } from './matrix.js';
 import { renderFile as renderFileAsync } from 'ejs';
+import { permutateNameFrom, vector_dim_names, vector_color_names, vector_name_index, vector_default_values } from './name-permutation.js';
 
 const renderFile = promisify(renderFileAsync);
 
 const __file__ = fileURLToPath(import.meta.url);
 const __dir__ = dirname(__file__);
-
-const vector_dim_names = ['x', 'y', 'z', 'w'];
-const vector_color_names = ['r', 'g', 'b', 'a'];
-const vector_name_index = Object.create(null);
-const vector_default_values = [0, 0, 0, 1];
-
-for (const name_array of [vector_dim_names, vector_color_names]) {
-    name_array.forEach((name, index) => {
-        vector_name_index[name] = index;
-    });
-}
-
-function * permutateNameLetterFrom(list, size, prefix) {
-    if (prefix.length >= size) {
-        if (prefix.length > 0) {
-            yield prefix;
-        }
-        return;
-    }
-    for (const letter of list) {
-        yield * permutateNameLetterFrom(list, size, prefix + letter);
-    }
-}
-
-function * permutateNameFrom(list, size) {
-    yield * permutateNameLetterFrom(list, size, '');
-}
 
 function matrixDefaultValues(rows, columns) {
     let values = (new Array(rows * columns)).fill(0);

@@ -1,10 +1,11 @@
-import { describe, it } from 'mocha';
+import { suite, test } from 'mocha';
 import assert from 'node:assert';
 import * as math from '../dist/math.js';
+import { permutateNameFrom, vector_color_names, vector_dim_names, vector_name_index } from '../src/name-permutation.js';
 
 for (let dim = 2; dim <= 4; ++dim) {
-    describe(`Vector${dim}D`, function () {
-        it('should construct with default values', function () {
+    suite(`Vector${dim}D`, function () {
+        test('.constructor()', function () {
             let vector1, vector2;
             assert(typeof math[`Vector${dim}D`] === 'function', `typeof math.Vector${dim}D' === 'function'`);
             assert(typeof math.Vector?.[dim] === 'function', `typeof math.Vector[${dim}]' === 'function'`);
@@ -24,7 +25,7 @@ for (let dim = 2; dim <= 4; ++dim) {
                 assert.strictEqual(vector1[3], 1, 'vector1[3] === 1');
             }
         });
-        it('should copy construct from another vector', function () {
+        test('.constructor(VectorND)', function () {
             const sv2 = new math.Vector2D(2, 3);
             const sv3 = new math.Vector3D(5, 7, 11);
             const sv4 = new math.Vector4D(13, 17, 19, 23);
@@ -65,7 +66,7 @@ for (let dim = 2; dim <= 4; ++dim) {
                 assert.strictEqual(sv2sv2[3], sv2_1[1]);
             }
         });
-        it('should construct from number', function () {
+        test('.constructor(Number)', function () {
             let vector;
             assert.doesNotThrow(() => {
                 vector = new math.Vector[dim](5);
@@ -73,6 +74,8 @@ for (let dim = 2; dim <= 4; ++dim) {
             for (let d = 0; d < dim; ++d) {
                 assert.strictEqual(vector[d], 5, `vector[${d}] === 5`);
             }
+        });
+        test('.constructor(recursive Array)', function () {
             const recursive_args = [3.4, null];
             {
                 const ra = [recursive_args];
@@ -86,7 +89,7 @@ for (let dim = 2; dim <= 4; ++dim) {
                 assert.strictEqual(recursive_vector[d], recursive_args[0], `vector[${d}] === 5`);
             }
         });
-        it('should construct from array copy', function () {
+        test('.from(TypedArray)', function () {
             const array = new Float32Array(new ArrayBuffer(64 * 4));
             const ref = new Float32Array(new ArrayBuffer(64 * 4));
             for (let i = 0; i < array.length; ++i) {
@@ -112,7 +115,7 @@ for (let dim = 2; dim <= 4; ++dim) {
                 assert.strictEqual(array[i], ref[i], `array[${i}] not modified`);
             }
         });
-        it('should construct from array reference', function () {
+        test('.using(TypedArray)', function () {
             const array = new Float32Array(new ArrayBuffer(64 * 4));
             const ref = new Float32Array(new ArrayBuffer(64 * 4));
             for (let i = 0; i < array.length; ++i) {
@@ -142,7 +145,7 @@ for (let dim = 2; dim <= 4; ++dim) {
                 assert.strictEqual(array[i], ref[i], `array[${i}] not modified`);
             }
         });
-        it('should construct piecewise', function () {
+        test('.piecewise(Reference<Array>, Reference<TypedArray>, Reference<Object property>, Number)', function () {
             const source = [
                 [4.5, 5.2],
                 Float32Array.from([7.1, 6.9]),
@@ -237,7 +240,7 @@ for (let dim = 2; dim <= 4; ++dim) {
                 }
             }
         });
-        it('should error on construct with invalid arguments', function () {
+        test('.constructor,using,from,piecewise(<invalid arguments>)', function () {
             assert.throws(() => {
                 new math.Vector[dim](Symbol('test'));
             }, TypeError);
@@ -368,7 +371,7 @@ for (let dim = 2; dim <= 4; ++dim) {
                 }, TypeError);
             }
         });
-        it('should VectorXD be iterable', function () {
+        test('[Symbol.iterator]', function () {
             const r = [5, 10, 13, 18].slice(0, dim);
             const v = new math.Vector[dim](...r);
             assert.strictEqual(typeof v[Symbol.iterator], 'function', `typeof Vector${dim}D[Symbol.iterator] === 'function'`);
@@ -383,23 +386,98 @@ for (let dim = 2; dim <= 4; ++dim) {
                 assert.strictEqual(k[i], r[i], `k[${i}] === r[${i}]`);
             }
         });
-        it('should VectorXD.set with constructor arguments', function () {
-            const sv2 = new math.Vector2D(2, 3);
-            const sv3 = new math.Vector3D(5, 7, 11);
-            const sv4 = new math.Vector4D(13, 17, 19, 23);
-            const v = new math.Vector[dim]();
-            const r = [...v];
-            assert.doesNotThrow(() => {
-                v.set(sv2);
-            }, `Vector${dim}D.set(Vector2D)`);
-            assert.strictEqual(v[0], sv2[0], `v1[0] == sv2[0]`);
-            assert.strictEqual(v[1], sv2[1], `v1[1] == sv2[1]`);
-            if (dim >= 3) {
-                assert.strictEqual(v[2], r[2], `v1[2] == r[2]`);
-            }
-            if (dim >= 4) {
-                assert.strictEqual(v[3], r[3], `v1[3] == r[3]`);
+        test('.set(...)', function () {
+            const sv = {
+                2: new math.Vector2D(2, 3),
+                3: new math.Vector3D(5, 7, 11),
+                4: new math.Vector4D(13, 17, 19, 23)
+            };
+            for (let sl = 2; sl <= 4; ++sl) {
+                const v = new math.Vector[dim]();
+                const r = [...v];
+                assert.doesNotThrow(() => {
+                    v.set(sv[sl]);
+                }, `Vector${dim}D.set(Vector${sl}D)`);
+                assert.strictEqual(v[0], sv[sl][0], `v[0] == source[${sl}][0]`);
+                assert.strictEqual(v[1], sv[sl][1], `v[1] == source[${sl}][1]`);
+                if (dim >= 3) {
+                    const k = sl >= 3 ? sv[sl] : r;
+                    assert.strictEqual(v[2], k[2], `v[2] == ${sl >= 3 ? `source[${sl}]` : 'default'}[2]`);
+                }
+                if (dim >= 4) {
+                    const k = sl >= 4 ? sv[sl] : r;
+                    assert.strictEqual(v[3], k[3], `v[3] == ${sl >= 4 ? `source[${sl}]` : 'default'}[3]`);
+                }
             }
         });
+        test('.set(...)', function () {
+            const sv = {
+                2: new math.Vector2D(2, 3),
+                3: new math.Vector3D(5, 7, 11),
+                4: new math.Vector4D(13, 17, 19, 23)
+            };
+            for (let sl = 2; sl <= 4; ++sl) {
+                const v = new math.Vector[dim]();
+                if (sl === dim) {
+                    const r = [...v];
+                    assert.doesNotThrow(() => {
+                        sv[sl].into(v);
+                    }, `Vector${dim}D.set(Vector${sl}D)`);
+                    assert.strictEqual(v[0], sv[sl][0], `v[0] == source[${sl}][0]`);
+                    assert.strictEqual(v[1], sv[sl][1], `v[1] == source[${sl}][1]`);
+                    if (dim >= 3) {
+                        const k = sl >= 3 ? sv[sl] : r;
+                        assert.strictEqual(v[2], k[2], `v[2] == ${sl >= 3 ? `source[${sl}]` : 'default'}[2]`);
+                    }
+                    if (dim >= 4) {
+                        const k = sl >= 4 ? sv[sl] : r;
+                        assert.strictEqual(v[3], k[3], `v[3] == ${sl >= 4 ? `source[${sl}]` : 'default'}[3]`);
+                    }
+                } else {
+                    assert.throws(() => {
+                        sv[sl].into(v);
+                    }, TypeError);
+                }
+            }
+        });
+        for (const naming_scheme of [vector_dim_names, vector_color_names]) {
+            const names = naming_scheme.slice(0, dim);
+            for (let name_size = 1; name_size <= 4; ++name_size) {
+                for (const name of permutateNameFrom(names, name_size)) {
+                    const name_list = name.split('');
+                    const index_list = name_list.map(n => vector_name_index[n]);
+                    test(`.${name}`, function () {
+                        const ref = [17, 5, 11, 3];
+                        const chg = [14.5, 5.5, 4.5, 14.5];
+                        const v = new math.Vector[dim](...ref.slice(0, dim));
+                        let g;
+                        assert.doesNotThrow(() => {
+                            g = v[name];
+                        }, `get Vector${dim}D.${name}`);
+                        if (name_list.length >= 2) {
+                            assert(g instanceof math.Vector[name_list.length], `Vector${dim}D.${name} instanceof Vector${name_list.length}D`);
+                            for (let i = 0; i < index_list.length; ++i) {
+                                assert.strictEqual(g[i], ref[index_list[i]], `Vector${dim}D.${name}[${index_list[i]}] === ref[${index_list[i]}]`);
+                            }
+                        } else {
+                            assert.strictEqual(typeof g, 'number', `typeof Vector${dim}D.${name} === 'number'`);
+                            assert.strictEqual(g, ref[index_list[0]], `Vector${dim}D.${name} === ref[${index_list[0]}]`);
+                        }
+                        assert.doesNotThrow(() => {
+                            v[name] = chg.slice(0, name_list.length);
+                        }, `set Vector${dim}D.${name}`);
+                        let set_list = new Set();
+                        for (const index of index_list) {
+                            set_list.add(index);
+                        }
+                        set_list = [...set_list.values()];
+                        const write_list = set_list.map(index => index_list.lastIndexOf(index));
+                        for (let i = 0; i < set_list.length; ++i) {
+                            assert.strictEqual(v[set_list[i]], chg[write_list[i]], `Vector${dim}D.${name}[${set_list[i]}] === chg[${write_list[i]}]`);
+                        }
+                    });
+                }
+            }
+        }
     });
 }

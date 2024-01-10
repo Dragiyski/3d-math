@@ -39,35 +39,26 @@ function throw_type_error(name, ...args) {
 
 function get_type(value) {
     if (value === void 0) {
-        return 'undefined';
+        return '[undefined]';
     }
     if (value === null) {
-        return 'null';
+        return '[null]';
     }
     if (value !== Object(value)) {
-        return typeof value;
+        return `[${typeof value}]`;
     }
     if (typeof value === 'function') {
-        return 'function';
-    }
-    const proto = Object.getPrototypeOf(value);
-    let has_object_proto = false;
-    for (let p = proto; p != null; p = Object.getPrototypeOf(p)) {
-        if (p === Object.prototype) {
-            has_object_proto = true;
-            break;
-        }
-    }
-    if (has_object_proto) {
-        const constructor = proto.constructor;
-        if (typeof constructor === 'function') {
-            const name = constructor.name;
-            if (typeof name === 'string' && name.trim().length > 0) {
-                return `#<${name}>`;
+        const name = value.name;
+        if (typeof name === 'string' && name.length > 0) {
+            if (name.length > 256) {
+                return `[function ${name.substring(0, 256)}...]`;
+            } else {
+                return `[function ${name}];`;
             }
         }
+        return '[function]';
     }
-    return '#<Object>';
+    return Object.prototype.toString.call(value);
 }
 
 export function radians_from(value) {
