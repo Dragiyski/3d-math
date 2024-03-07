@@ -11,6 +11,7 @@ const implementation = Object.create(null);
 implementation[Number_polymorphism] = Object.create(null);
 implementation[Number_polymorphism][Number_polymorphism] = Object.create(null);
 const internal = Symbol('internal');
+const inspect = Symbol.for('nodejs.util.inspect.custom');
 export const Vector = Object.create(null);
 export const Matrix = Object.create(null);
 
@@ -75,4 +76,28 @@ export function hg_expand(vector, value = 1) {
 
 export function hg_collapse(vector, divide = true) {
     return implementation[vector[polymorphism]].hg_collapse(vector, divide);
+}
+
+function prepareNumberForInspect(number) {
+    if (Number.isNaN(number)) {
+        return 'NaN';
+    } else if (number === Number.POSITIVE_INFINITY) {
+        return '+Infinity';
+    } else if (number === Number.NEGATIVE_INFINITY) {
+        return '-Infinity';
+    } else if (number >= +0.0) {
+        return `+${number.toFixed(6)}`;
+    } else if (Object.is(number, -0.0)) {
+        return `-${number.toFixed(6)}`;
+    } else {
+        return number.toFixed(6);
+    }
+}
+
+function expandStringToWidth(string, width, fill) {
+    const repeat = Math.ceil((width - string.length) / fill.length);
+    if (repeat <= 0) {
+        return string;
+    }
+    return fill.repeat(repeat) + string;
 }

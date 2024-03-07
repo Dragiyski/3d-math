@@ -24,6 +24,30 @@ export class Matrix<%= locals.rows %>x<%= locals.columns %> {
     static using_columns(...vectors) {
         return matrix_create_from_column_vectors(this, <%= locals.rows %>, <%= locals.columns %>, vectors, false);
     }
+
+    [inspect]() {
+        const columns = [];
+        for (const sourceColumn of this[internal].columns) {
+            const column = [];
+            for (const item of sourceColumn) {
+                column.push(prepareNumberForInspect(item));
+            }
+            columns.push(column);
+        }
+        console.log(columns);
+        const colSize = columns.map(column => Math.max(...column.map(item => item.length)));
+        console.log(colSize);
+        let value = 'Matrix<%= locals.rows -%>x<%= locals.rows -%> [\n';
+        for (let row = 0; row < <%= locals.rows -%>; ++row) {
+            const line = [];
+            for (let column = 0; column < <%= locals.rows -%>; ++column) {
+                line.push(expandStringToWidth(columns[column][row], colSize[column], ' '));
+            }
+            value += `    [ ${line.join(', ')} ]\n`;
+        }
+        value += ']';
+        return value;
+    }
     <%_ if (locals.rows === locals.columns) { _%>
 
     set_identity() {

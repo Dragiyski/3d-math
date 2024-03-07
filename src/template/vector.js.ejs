@@ -42,6 +42,11 @@ export class Vector<%= locals.size %>D {
         }
         return target.set(this);
     }
+
+    [inspect]() {
+        return `Vector<%= locals.size -%>D [<%- [0, 1, 2, 3].slice(0, locals.size).map(i => '$' + `{prepareNumberForInspect(this[internal][${i}])}`).join(', ') -%>]`;
+    }
+
     <%_ if (locals.size === 4) { _%>
 
         static quaternions(radians, ...coords) {
