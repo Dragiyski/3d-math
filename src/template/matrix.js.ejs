@@ -34,9 +34,7 @@ export class Matrix<%= locals.rows %>x<%= locals.columns %> {
             }
             columns.push(column);
         }
-        console.log(columns);
         const colSize = columns.map(column => Math.max(...column.map(item => item.length)));
-        console.log(colSize);
         let value = 'Matrix<%= locals.rows -%>x<%= locals.rows -%> [\n';
         for (let row = 0; row < <%= locals.rows -%>; ++row) {
             const line = [];
