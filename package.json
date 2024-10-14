@@ -6,10 +6,12 @@
         "name": "Plamen Dragiyski",
         "email": "plamen@dragiyski.org"
     },
+    "dependencies": {
+        "ejs": "^3.1.9"
+    },
     "devDependencies": {
         "@babel/eslint-parser": "^7.19.1",
         "c8": "^8.0.1",
-        "ejs": "^3.1.9",
         "eslint": "^8.35.0",
         "mocha": "^10.2.0"
     },
